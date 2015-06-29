@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<!-- saved from url=(0063)http://localhost:63342/ace-processing-master/ace-processing.htm -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Ace Processing JS</title>
+  <style type="text/css" media="screen">
+    .editor { 
+      margin: 20px;
+      border: 2px solid #d0d0d0;      
+      width: 600px;
+      height: 500px;
+    }
+    .display {
+      margin: 20px;
+    }
+    .controls {
+      margin: 20px;
+    }
+    .canvas1 {
+      border: 2px solid #d0d0d0;      
+      width: 600px;
+      height: 500px;
+    }
+  </style>
+<script src="./ace/mode-javascript.js"></script>
+</head>
+  <body onload="setup()">
+	<h1>Processing playground</h1>
+    <div class="controls">
+      <select id="styleSelect" onchange="selectStyle()">
+        <option value="vibrant_ink">vibrant_ink
+        </option><option value="twilight">twilight
+        </option><option value="merbivore">merbivore
+        </option><option value="monokai">monokai
+        </option><option value="xcode">xcode
+        </option><option value="tomorrow">tomorrow
+        </option><option value="pastel_on_dark">pastel_on_dark
+      </option></select>
+
+      <input type="range" min="10" max="30" id="fsize" step="1" oninput="selectSize(this.value)" onchange="selectSize(this.value)">
+
+
+      <select id="fileSelect" onchange="changeFileSelection()">
+          <option value="default">Default</option>
+          <option value="test">Test</option>
+      </select>
+
+      <input id="newname" value="">
+      <button onclick="addName()">Add</button>
+      <button onclick="saveApp()">Save</button>
+      <button onclick="clearApp()">Clear</button>
+      <button onclick="demoApp()">Demo</button>
+
+      <button onclick="startSketch();">Start</button>
+      <button onclick="stopSketch();">Stop</button>
+    </div>
+    <div style="width: 600px; float:left;">
+      <pre id="the-editor" class="editor ace_editor ace-vibrant-ink ace_dark ace_focus" style="font-size: 18px;">
+          <textarea wrap="off" style="top: 328px; height: 22px; width: 9.90625px; left: 215.8125px;">
+size(600,500);
+          </textarea>
+      </pre>
+    </div>
+    <div style="float:right;">
+      <div class="display">
+        <canvas id="sketch" class="canvas1" tabindex="0" width="600" height="400" style="image-rendering: -webkit-optimize-contrast !important;"></canvas>
+      </div>
+    </div>
+  <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/processing-1.4.8.js" type="text/javascript" charset="utf-8"></script>
+  <script type="application/javascript">
+      // initialize ACE editor, set a few options
+      var editor = ace.edit("the-editor");
+//      editor.setTheme("ace/theme/vibrant_ink");
+      editor.getSession().setMode("ace/mode/javascript");
+      editor.getSession().setTabSize(3);
+//      document.getElementById('the-editor').style.fontSize='16px';
+
+      // compile processing code to js code, then run it
+      var canvas = document.getElementById("sketch");
+      var processingInstance;
+
+      function setup() {
+        var element = document.getElementById('styleSelect');
+        element.value = localStorage.getItem("ace-style");
+        editor.setTheme("ace/theme/" + element.value);
+
+        var element = document.getElementById('fsize');
+        element.value = localStorage.getItem("ace-fsize");
+        document.getElementById('the-editor').style.fontSize=(element.value + "px");
+
+        loadFileList();
+
+        var element = document.getElementById('fileSelect');
+        element.value = localStorage.getItem("ace-file");
+        loadCurrentFile();
+      }
+
+      function selectStyle() {
+        var x = document.getElementById("styleSelect").value;
+        localStorage.setItem("ace-style", x);
+        editor.setTheme("ace/theme/" + x);
+      }
+
+      function selectSize(abc){
+        textval = document.getElementById('textsize');
+        localStorage.setItem("ace-fsize", abc);
+        document.getElementById('the-editor').style.fontSize=(abc + "px");
+      }
+
+      function startSketch() {
+          // stop first if already running
+          if(processingInstance) {
+              stopSketch();
+          }
+          // get processing sketch source code from ACE editor
+          var processingCode = editor.getValue();
+          // compile it using Processing JS
+          var jsCodeStr = Processing.compile(processingCode).sourceCode;
+          // evaluate it to actual JS code
+          var jsCode = eval(jsCodeStr);
+          // create new Processing instance, and associate to canvas
+          processingInstance = new Processing(canvas, jsCode);
+          // put Processing sketch to run
+          switchSketchState(true);
+      }
+
+      function stopSketch() {
+          switchSketchState(false);
+          processingInstance = null;
+      }
+      
+      function switchSketchState(on) {
+          if (processingInstance) {
+              if (on) {
+                  processingInstance.loop();  // call Processing loop() function
+              } else {
+                  processingInstance.noLoop(); // stop animation, call noLoop()
+              }
+          }
+      }
+
+      function changeFileSelection() {
+          var currentFile = localStorage.getItem("ace-file");
+          localStorage.setItem(currentFile, editor.getValue());
+
+          var x = document.getElementById("fileSelect").value;
+          localStorage.setItem("ace-file", x);
+          loadCurrentFile();
+      }
+
+
+      function loadCurrentFile(){
+          // if not empty
+          var codeElem = document.getElementById('the-editor');
+          var element = document.getElementById('fileSelect');
+          var code = localStorage.getItem(element.value);
+          editor.setValue(code);
+          editor.gotoLine(editor.session.getLength());
+      }
+
+      function saveCurrentFile(){
+          // if not empty
+          var codeElem = document.getElementById('codeArea');
+          var element = document.getElementById('fileSelect');
+          localStorage.setItem(element.value, editor.getValue());
+          saveFileList();
+
+      }
+
+      function saveFileList() {
+          var options = [];
+          var selElem = document.getElementById('fileSelect');
+          for (var i=0;i<selElem.options.length;i++) {
+              options.push({ "id" : selElem.options[i].value, "text" : selElem.options[i].text });
+          }
+          localStorage.setItem("ace-fileList", JSON.stringify(options));
+      }
+
+
+      function loadFileList() {
+          var selElem = document.getElementById('fileSelect');
+          var options = JSON.parse(localStorage.getItem("ace-fileList"));
+          while (selElem.options.length > 0) {
+              selElem.options[0] = null;
+          }
+
+          if (options !== null && options.length > 0) {
+              for (var i = 0; i < options.length; i++) {
+                  if (options[i].id !== "") {
+                      var op = new Option(options[i]["text"], options[i]["id"]);
+                      selElem.options[i] = op;
+                  }
+              }
+          } else {
+              var op = new Option("default", "Default");
+              selElem.options[0] = op;
+              SaveApp();
+          }
+
+      }
+
+     function saveApp() {
+          saveFileList();
+          saveCurrentFile();
+      }
+
+      function clearApp() {
+          editor.setValue("");
+          localStorage.setItem("ace-file", "demo");
+      }
+
+      function demoApp() {
+          var code = "size(600,500);\n" +
+                  "rect(100,100,200,200);\n" +
+                  "smooth();\n" +
+                "PFont f = createFont('monospace',16,true); // Arial, 16 point, anti-aliasing on\n" +
+                "textFont(f,16);\n" +
+                "fill(128);\n" +
+                "for (i=0; i<600; i+= 100) {\n" +
+                "    text(i, i, 16);\n" +
+                "}\n" +
+                "for (i=0; i<500; i+= 100) {\n" +
+                "    text(i, 0, i);\n" +
+                "}\n" +
+                "strokeWeight(1);\n" +
+                "frameRate(24);\n";
+
+          editor.setValue(code);
+          editor.gotoLine(editor.session.getLength());
+          var newname = document.getElementById("newname");
+          newname.value = "Demo";
+
+          var selElem = document.getElementById('fileSelect');
+          for (i=0; i<selElem.options.length; i++) {
+              if (selElem.options[i].value === "demo") {
+                  selElem.remove(i);
+              }
+          }
+          addName();
+          saveFileList();
+          saveCurrentFile();
+      }
+
+      function addName() {
+          var currentFile = localStorage.getItem("ace-file");
+          localStorage.setItem(currentFile, editor.getValue());
+
+          var newname = document.getElementById("newname");
+          var x = newname.value;
+          if (x.trim() === "") {
+              alert("Name cannot be blank");
+          } else {
+              select = document.getElementById('fileSelect');
+              var opt = document.createElement('option');
+              opt.value = x.toLowerCase().replace(' ', '-');
+              opt.innerHTML = x;
+              select.appendChild(opt);
+
+              localStorage.setItem("ace-file", x.toLowerCase().replace(' ', '-'));
+              sortFileList();
+              select.value = opt.value;
+          }
+          newname.value = "";
+      }
+
+      function sortFileList() {
+          var selElem = document.getElementById('fileSelect');
+          var tmpAry = new Array();
+          for (var i=0;i<selElem.options.length;i++) {
+              tmpAry[i] = new Array();
+              tmpAry[i][0] = selElem.options[i].text;
+              tmpAry[i][1] = selElem.options[i].value;
+          }
+          tmpAry.sort(function (a, b) {
+              return a.toString().toLowerCase().localeCompare(b.toString().toLowerCase());
+          });
+          while (selElem.options.length > 0) {
+              selElem.options[0] = null;
+          }
+          for (var i=0;i<tmpAry.length;i++) {
+              var op = new Option(tmpAry[i][0], tmpAry[i][1]);
+              selElem.options[i] = op;
+          }
+          return;
+      }
+
+
+  </script>
+
+  
+</body></html>

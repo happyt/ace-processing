@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<body onload="setup()">
+
+<p>Select a new car from the list.</p>
+
+<select id="mySelect" onchange="myFunction()">
+  <option value="Audi">Audi
+  <option value="BMW">BMW
+  <option value="Mercedes">Mercedes
+  <option value="Volvo">Volvo
+</select>
+
+<input type="range" min="10" max="30" id="fsize" step="1"
+        oninput="sizer(this.value)" onchange="sizer(this.value)"/>
+        
+        
+<select id="fileSelect" onchange="myFile()">
+  <option value="Audi">Audi
+  <option value="BMW">BMW
+  <option value="Mercedes">Mercedes
+  <option value="Volvo">Volvo
+</select>
+
+<input id="newname" value="">New</input>
+<button onclick="addName()">Add</button>
+<button onclick="clearApp()">Clear</button>
+
+<p>When you select a new car, a function is triggered which outputs the value of the selected car.</p>
+
+<p id="demo"></p>
+
+<p id="textsize">xx</p>
+
+<textarea rows="4" cols="50">
+At w3schools.com you will learn how to make a website. We offer free tutorials in all web development technologies. 
+</textarea>
+
+
+<script>
+function myFunction() {
+    var x = document.getElementById("mySelect").value;
+    localStorage.setItem("combo", x);
+    document.getElementById("demo").innerHTML = "You selected: " + x;
+}
+
+function myFile() {
+    var x = document.getElementById("fileSelect").value;
+    localStorage.setItem("file", x);
+}
+
+function setup() {
+    var element = document.getElementById('mySelect');
+    element.value = localStorage.getItem("combo");
+
+   var element = document.getElementById('fsize');
+    element.value = localStorage.getItem("fsize");
+
+
+   var textval = document.getElementById('textsize');
+   var abc = localStorage.getItem("fsize");
+   textval.innerText = abc;
+}
+
+function sizer(abc){
+   textval = document.getElementById('textsize');
+   textval.innerText = abc;
+   localStorage.setItem("fsize", abc);
+}
+
+function addName() {
+alert("ww");
+    var x = document.getElementById("newname").value;
+    alert(x);
+    if (x.trim() === "") {
+        alert("Name cannot be blank");
+    } else {
+       select = document.getElementById('fileSelect');
+       var opt = document.createElement('option');
+       opt.value = x.toLowerCase().replace(' ', '-');
+       opt.innerHTML = x;
+       select.appendChild(opt);
+       select.value = opt.value;
+       alert("done");
+       
+       localStorage.setItem("currentFile", x.toLowerCase().replace(' ', '-'));
+//       sortFileList();
+    }
+}
+
+function sortFileList() {
+    varr selElem = document.getElementById('fileSelect');
+    var tmpAry = new Array();
+    for (var i=0;i<selElem.options.length;i++) {
+        tmpAry[i] = new Array();
+        tmpAry[i][0] = selElem.options[i].text;
+        tmpAry[i][1] = selElem.options[i].value;
+    }
+    tmpAry.sort();
+    while (selElem.options.length > 0) {
+        selElem.options[0] = null;
+    }
+    for (var i=0;i<tmpAry.length;i++) {
+        var op = new Option(tmpAry[i][0], tmpAry[i][1]);
+        selElem.options[i] = op;
+    }
+    return;
+}
+
+function saveCurrentFile(){
+
+}
+
+function saveFilelist() {
+	
+}
+
+function loadFilelist() {
+	
+}
+
+function clearApp() {
+
+}
+
+</script>
+
+</body>
+</html>
+
