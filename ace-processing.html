@@ -5,7 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>Ace Processing JS</title>
   <style type="text/css" media="screen">
-    .editor { 
+      body {
+          background: linear-gradient(to bottom, #7db9e8 2%,#2989d8 50%,#1e5799 100%); /* W3C */
+      }
+
+    .editor {
       margin: 20px;
       border: 2px solid #d0d0d0;      
       width: 600px;
@@ -29,14 +33,23 @@
 	<h1>Processing playground</h1>
     <div class="controls">
       <select id="styleSelect" onchange="selectStyle()">
-        <option value="vibrant_ink">vibrant_ink
-        </option><option value="twilight">twilight
-        </option><option value="merbivore">merbivore
-        </option><option value="monokai">monokai
-        </option><option value="xcode">xcode
-        </option><option value="tomorrow">tomorrow
-        </option><option value="pastel_on_dark">pastel_on_dark
-      </option></select>
+           <option value="chrome">chrome</option>
+          <option value="clouds">clouds</option>
+          <option value="cobalt">cobalt</option>
+          <option value="dawn">dawn</option>
+          <option value="dreamweaver">dreamweaver</option>
+          <option value="github">github</option>
+          <option value="merbivore">merbivore</option>
+          <option value="merbivore_soft">merbivore_soft</option>
+          <option value="monokai">monokai </option>
+          <option value="pastel_on_dark">pastel_on_dark</option>
+          <option value="solarized_light">solarized_light</option>
+          <option value="textmate">textmate</option>
+          <option value="tomorrow">tomorrow </option>
+          <option value="twilight">twilight</option>
+          <option value="vibrant_ink">vibrant_ink</option>
+          <option value="xcode">xcode</option>
+      </select>
 
       <input type="range" min="10" max="30" id="fsize" step="1" oninput="selectSize(this.value)" onchange="selectSize(this.value)">
 
@@ -57,7 +70,7 @@
     </div>
     <div style="width: 600px; float:left;">
       <pre id="the-editor" class="editor ace_editor ace-vibrant-ink ace_dark ace_focus" style="font-size: 18px;">
-          <textarea wrap="off" style="top: 328px; height: 22px; width: 9.90625px; left: 215.8125px;">
+          <textarea wrap="soft" style="top: 328px; height: 22px; ">
 size(600,500);
           </textarea>
       </pre>
@@ -86,13 +99,13 @@ size(600,500);
         element.value = localStorage.getItem("ace-style");
         editor.setTheme("ace/theme/" + element.value);
 
-        var element = document.getElementById('fsize');
+        element = document.getElementById('fsize');
         element.value = localStorage.getItem("ace-fsize");
         document.getElementById('the-editor').style.fontSize=(element.value + "px");
 
         loadFileList();
 
-        var element = document.getElementById('fileSelect');
+        element = document.getElementById('fileSelect');
         element.value = localStorage.getItem("ace-file");
         loadCurrentFile();
       }
@@ -153,7 +166,6 @@ size(600,500);
 
       function loadCurrentFile(){
           // if not empty
-          var codeElem = document.getElementById('the-editor');
           var element = document.getElementById('fileSelect');
           var code = localStorage.getItem(element.value);
           editor.setValue(code);
@@ -162,7 +174,6 @@ size(600,500);
 
       function saveCurrentFile(){
           // if not empty
-          var codeElem = document.getElementById('codeArea');
           var element = document.getElementById('fileSelect');
           localStorage.setItem(element.value, editor.getValue());
           saveFileList();
@@ -182,6 +193,7 @@ size(600,500);
       function loadFileList() {
           var selElem = document.getElementById('fileSelect');
           var options = JSON.parse(localStorage.getItem("ace-fileList"));
+          var op;
           while (selElem.options.length > 0) {
               selElem.options[0] = null;
           }
@@ -189,12 +201,12 @@ size(600,500);
           if (options !== null && options.length > 0) {
               for (var i = 0; i < options.length; i++) {
                   if (options[i].id !== "") {
-                      var op = new Option(options[i]["text"], options[i]["id"]);
+                      op = new Option(options[i]["text"], options[i]["id"]);
                       selElem.options[i] = op;
                   }
               }
           } else {
-              var op = new Option("default", "Default");
+              op = new Option("default", "Default");
               selElem.options[0] = op;
               SaveApp();
           }
@@ -266,10 +278,11 @@ size(600,500);
       }
 
       function sortFileList() {
+          var i;
           var selElem = document.getElementById('fileSelect');
-          var tmpAry = new Array();
-          for (var i=0;i<selElem.options.length;i++) {
-              tmpAry[i] = new Array();
+          var tmpAry = [];
+          for (i=0;i<selElem.options.length;i++) {
+              tmpAry[i] = [];
               tmpAry[i][0] = selElem.options[i].text;
               tmpAry[i][1] = selElem.options[i].value;
           }
@@ -279,15 +292,13 @@ size(600,500);
           while (selElem.options.length > 0) {
               selElem.options[0] = null;
           }
-          for (var i=0;i<tmpAry.length;i++) {
+          for (i=0;i<tmpAry.length;i++) {
               var op = new Option(tmpAry[i][0], tmpAry[i][1]);
               selElem.options[i] = op;
           }
-          return;
       }
 
-
   </script>
-
   
-</body></html>
+</body>
+</html>

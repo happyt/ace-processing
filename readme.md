@@ -4,7 +4,6 @@ Early version
 
 Need to add,
 more styles ?
-favicon
 logo and nice page style
 appcache
 test to ipad
