@@ -7,6 +7,8 @@ Need to add,
 - logo and nice page style
 - appcache
 - test to ipad
+- locaStorage version
+- connect to cloud
 
 Problems
 - if switch between versions, event handlers aren't cleared 
